@@ -8,8 +8,9 @@
 
 ## Architecture & Data Flow
 
-- Reads a Granola meeting notes file (JSON format).
-- Unmarshals JSON into Go structs (see `GranolaMeeting` in `main.go`).
+- Reads a Granola cache file (JSON format) with a wrapper property `cache` (a JSON string).
+- Unmarshals the outer JSON, then the inner JSON string, into Go structs (see `Cache`, `State`, `Document`).
+- The `notes` field in each document is a TipTap JSON structure (see README for schema).
 - Iterates through the struct to generate Markdown output.
 - Writes the Markdown to a file.
 
@@ -19,27 +20,23 @@
   - Run `go build -o granola-to-markdown.exe` to build the executable for Windows.
 - **Run:**
   - Execute `./granola-to-markdown.exe` (or `go run main.go` for development).
-- **Dependencies:**
-  - No external Go dependencies are currently declared in `go.mod`.
 - **Testing:**
-  - No test files or test framework present as of now.
+  - Run `go test` to execute unit tests in `main_test.go`. Tests use in-memory JSON, not files.
 
 ## Project Conventions
 
 - All logic is currently in `main.go`.
-- The struct `GranolaMeeting` is the placeholder for the data model; expand as needed to match the JSON schema.
-- Input/output file paths and formats are not hardcoded—update `main.go` to handle arguments or config as needed.
+- Input/output file paths and formats are hardcoded.
 
 ## Integration Points
 
-- Expects input in the form of a Granola meeting notes JSON file (see `granola-cache.json` for an example or placeholder).
-- Output is a Markdown file, format and location to be defined in code.
+- Expects input in the form of a Granola cache JSON file.
+- Output is a Markdown file, format.
 
 ## Key Files
 
 - `main.go`: All application logic.
-- `granola-cache.json`: Example or cache of input data.
-- `README.md`: Project summary and usage.
+- `README.md`: Project summary, data schema, and usage.
 
 ## Example Usage
 
@@ -48,6 +45,8 @@
 $ go build -o granola-to-markdown.exe
 # Run
 $ ./granola-to-markdown.exe
+# Test
+$ go test
 ```
 
 ---

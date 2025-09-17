@@ -50,10 +50,6 @@ type Content struct {
 }
 
 func main() {
-	// TODO: lead file from flag
-	// TODO: choose format from flag
-	// TODO: choose location from flag
-
 	data, err := os.ReadFile("granola-cache.json")
 	if err != nil {
 		fmt.Printf("error reading file: %v", err)
@@ -66,6 +62,7 @@ func main() {
 	}
 
 	for _, doc := range cache.State.Documents {
+		// TODO: extract to function and test
 		contents := doc.Title + "\n" + doc.NotesMarkdown
 
 		safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{})
