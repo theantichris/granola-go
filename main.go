@@ -62,38 +62,28 @@ func main() {
 	}
 
 	for _, doc := range cache.State.Documents {
-		err := writeDocument(doc)
+		contents := doc.Title + "\n" + doc.NotesMarkdown
+
+		safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{})
 		if err != nil {
-			fmt.Printf("error writing document %s: %v", doc.ID, err)
+			fmt.Printf("error creating safe filename: %v", err)
+			os.Exit(1)
+		}
+
+		err = os.MkdirAll("output", 0755)
+		if err != nil {
+			fmt.Printf("error creating output directory: %v", err)
+			os.Exit(1)
+		}
+
+		filename := fmt.Sprintf("%s-%s.md", safeTitle, doc.ID)
+		if err := os.WriteFile("output/"+filename, []byte(contents), 0644); err != nil {
+			fmt.Printf("error writing file %s: %v", filename, err)
 			os.Exit(1)
 		}
 	}
 
 	os.Exit(0)
-}
-
-func writeDocument(doc Document) error {
-	contents := doc.Title + "\n" + doc.NotesMarkdown
-
-	safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{})
-	if err != nil {
-		fmt.Printf("error creating safe filename: %v", err)
-		os.Exit(1)
-	}
-
-	err = os.MkdirAll("output", 0755)
-	if err != nil {
-		fmt.Printf("error creating output directory: %v", err)
-		os.Exit(1)
-	}
-
-	filename := fmt.Sprintf("%s-%s.md", safeTitle, doc.ID)
-	if err := os.WriteFile("output/"+filename, []byte(contents), 0644); err != nil {
-		fmt.Printf("error writing file %s: %v", filename, err)
-		os.Exit(1)
-	}
-
-	return nil
 }
 
 // createCache takes a byte slice of JSON data and unmarshals it into a Cache struct.
