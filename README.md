@@ -20,7 +20,7 @@ The only part in `state` this project is currently concerned with are the `docum
         "notes_markdown": "string",                                // Meeting notes in Markdown format, might be missing
         "notes_plain": "string",                                   // Meeting notes in plain text format, might be missing
         "notes": {                                                 // TipTap rich content
-          "type": "string",                                        // The type of note, doc
+          "type": "doc",                                           // The type of notes; doc, heading, paragraph
           "content": [
             {
               "type": "heading",                                   // The type of block, heading|paragraph
