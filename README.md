@@ -2,6 +2,17 @@
 
 A Go application that exports Granola meeting notes to Markdown files.
 
+## Usage
+
+```sh
+# Build
+$ go build -o granola-to-markdown.exe
+# Run with default cache file
+$ ./granola-to-markdown.exe
+# Run with a specific cache file
+$ ./granola-to-markdown.exe --cache=my-cache.json
+```
+
 ## Granola cache scheme
 
 The cache file is in JSON with a wrapper property `cache` that's value is a JSON string. That contains a `state` object that has all the information including Google calendar events and people information.
@@ -42,11 +53,9 @@ The only part in `state` this project is currently concerned with are the `docum
     }
   }
 }
-```
 
-## TODOs
 
 - [ ] Actual meeting notes are missing from the cache
 - [ ] Specify input file from flag
-- [ ] Set format from flag
 - [ ] Set output location from flag
+```

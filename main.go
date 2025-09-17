@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"time"
@@ -50,9 +51,13 @@ type Content struct {
 }
 
 func main() {
-	data, err := os.ReadFile("granola-cache.json")
+	cacheFile := flag.String("cache", "granola-cache.json", "Path to the Granola cache JSON file")
+	flag.Parse()
+
+	data, err := os.ReadFile(*cacheFile)
 	if err != nil {
 		fmt.Printf("error reading file: %v", err)
+		os.Exit(1)
 	}
 
 	cache, err := createCache(data)
