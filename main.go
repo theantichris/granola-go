@@ -8,19 +8,20 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-type Granola struct {
+type Wrapper struct {
 	Cache string `json:"cache"`
 }
 
-type GranolaCache struct {
-	State GranolaState `json:"state"`
+type Cache struct {
+	State   State   `json:"state"`
+	Version float64 `json:"version"`
 }
 
-type GranolaState struct {
-	Events []GranolaEvent `json:"events"`
+type State struct {
+	Documents map[string]Document `json:"documents"`
 }
 
-type GranolaEvent struct {
+type Document struct {
 	ID string `json:"id"`
 }
 
@@ -31,14 +32,14 @@ func main() {
 		fmt.Printf("error reading file: %v", err)
 	}
 
-	var granola Granola
-	if err := json.Unmarshal(data, &granola); err != nil {
+	var wrapper Wrapper
+	if err := json.Unmarshal(data, &wrapper); err != nil {
 		fmt.Printf("error unmarshalling outer JSON: %v\n", err)
 		os.Exit(1)
 	}
 
-	var cache GranolaCache
-	if err := json.Unmarshal([]byte(granola.Cache), &cache); err != nil {
+	var cache Cache
+	if err := json.Unmarshal([]byte(wrapper.Cache), &cache); err != nil {
 		fmt.Printf("error unmarshalling cache: %v", err)
 		os.Exit(1)
 	}
