@@ -64,7 +64,7 @@ func main() {
 	for _, doc := range cache.State.Documents {
 		contents := doc.Title + "\n" + doc.NotesMarkdown
 
-		safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{})
+		safeTitle, err := getSafeTitle(doc)
 		if err != nil {
 			fmt.Printf("error creating safe filename: %v", err)
 			os.Exit(1)
@@ -84,6 +84,12 @@ func main() {
 	}
 
 	os.Exit(0)
+}
+
+// getSafeTitle generates a filesystem-safe title for a document.
+func getSafeTitle(doc Document) (string, error) {
+	safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{})
+	return safeTitle, err
 }
 
 // createCache takes a byte slice of JSON data and unmarshals it into a Cache struct.

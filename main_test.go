@@ -119,3 +119,41 @@ func TestCreateCache(t *testing.T) {
 		}
 	})
 }
+
+func TestGetSafeTitle(t *testing.T) {
+	t.Run("returns a safe filename", func(t *testing.T) {
+		t.Parallel()
+
+		doc := Document{
+			Title: "Test/Document: A Sample?",
+		}
+
+		safeTitle, err := getSafeTitle(doc)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+
+		expected := "Test-Document A Sample"
+		if safeTitle != expected {
+			t.Errorf("expected safe title %q, got %q", expected, safeTitle)
+		}
+	})
+
+	t.Run("handles titles with only unsafe characters", func(t *testing.T) {
+		t.Parallel()
+
+		doc := Document{
+			Title: "/:\\*?\"<>|",
+		}
+
+		safeTitle, err := getSafeTitle(doc)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+
+		expected := "_________"
+		if safeTitle != expected {
+			t.Errorf("expected safe title %q, got %q", expected, safeTitle)
+		}
+	})
+}
