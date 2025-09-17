@@ -4,51 +4,40 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
-type Wrapper struct {
-	Cache string `json:"cache"`
-}
-
-type Cache struct {
-	State   State   `json:"state"`
-	Version float64 `json:"version"`
-}
-
-type State struct {
-	Documents map[string]Document `json:"documents"`
-}
-
-type Document struct {
-	ID string `json:"id"`
-}
-
 func main() {
-	// Read file
+	// TODO: lead file from flag
+	// TODO: choose format from flag
+	// TODO: choose location from flag
+
 	data, err := os.ReadFile("granola-cache.json")
 	if err != nil {
 		fmt.Printf("error reading file: %v", err)
 	}
 
+	cache, err := createCache(data)
+	if err != nil {
+		fmt.Printf("error creating cache: %v", err)
+		os.Exit(1)
+	}
+
+	fmt.Print(cache)
+
+	os.Exit(0)
+}
+
+// createCache takes a byte slice of JSON data and unmarshals it into a Cache struct.
+func createCache(data []byte) (Cache, error) {
 	var wrapper Wrapper
 	if err := json.Unmarshal(data, &wrapper); err != nil {
-		fmt.Printf("error unmarshalling outer JSON: %v\n", err)
-		os.Exit(1)
+		return Cache{}, fmt.Errorf("error unmarshalling outer JSON: %v", err)
 	}
 
 	var cache Cache
 	if err := json.Unmarshal([]byte(wrapper.Cache), &cache); err != nil {
-		fmt.Printf("error unmarshalling cache: %v", err)
-		os.Exit(1)
+		return Cache{}, fmt.Errorf("error unmarshalling cache: %v", err)
 	}
 
-	fmt.Print("\n")
-	spew.Dump(cache)
-
-	// Loop through struct
-	// Write file
-
-	os.Exit(0)
+	return cache, nil
 }
