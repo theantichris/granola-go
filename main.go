@@ -93,7 +93,9 @@ func main() {
 
 // getSafeTitle generates a filesystem-safe title for a document.
 func getSafeTitle(doc Document) (string, error) {
-	safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{})
+	safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{
+		Replacement: "-",
+	})
 	return safeTitle, err
 }
 
