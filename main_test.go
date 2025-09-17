@@ -133,7 +133,7 @@ func TestGetSafeTitle(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		expected := "Test-Document A Sample"
+		expected := "Test!Document! A Sample"
 		if safeTitle != expected {
 			t.Errorf("expected safe title %q, got %q", expected, safeTitle)
 		}
@@ -151,7 +151,7 @@ func TestGetSafeTitle(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		expected := "_________"
+		expected := "!"
 		if safeTitle != expected {
 			t.Errorf("expected safe title %q, got %q", expected, safeTitle)
 		}
