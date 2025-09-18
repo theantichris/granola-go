@@ -63,11 +63,13 @@ state
 ├── transcripts: Map (keyed by document UUID)
 │   ├── [UUID]
 │   │   └── entries: Array
+|   |       ├── id: String
+|   |       ├── document_id: String
 │   │       ├── text: String
 │   │       ├── source: String
-│   │       ├── speaker: String
-│   │       ├── timestamp: Timestamp
-│   │       └── sequence_number: Number
+│   │       ├── start_timestamp: String
+|   |       ├── end_timestamp: String
+|   |       ├── is_final: Bool
 ├── meetingsMetadata: Map (keyed by document UUID)
 │   ├── [UUID]
 │   │   ├── creator: Object
