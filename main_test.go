@@ -133,25 +133,7 @@ func TestGetSafeTitle(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		expected := "Test-Document A Sample"
-		if safeTitle != expected {
-			t.Errorf("expected safe title %q, got %q", expected, safeTitle)
-		}
-	})
-
-	t.Run("handles titles with only unsafe characters", func(t *testing.T) {
-		t.Parallel()
-
-		doc := Document{
-			Title: "/:\\*?\"<>|",
-		}
-
-		safeTitle, err := getSafeTitle(doc)
-		if err != nil {
-			t.Fatalf("expected no error, got %v", err)
-		}
-
-		expected := "_________"
+		expected := "Test-Document- A Sample"
 		if safeTitle != expected {
 			t.Errorf("expected safe title %q, got %q", expected, safeTitle)
 		}

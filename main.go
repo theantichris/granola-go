@@ -52,6 +52,7 @@ type Content struct {
 
 func main() {
 	cacheFile := flag.String("cache", "granola-cache.json", "Path to the Granola cache JSON file")
+	outputFolder := flag.String("output", "output", "Directory to save the output markdown files")
 	flag.Parse()
 
 	data, err := os.ReadFile(*cacheFile)
@@ -75,7 +76,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		err = os.MkdirAll("output", 0755)
+		err = os.MkdirAll(*outputFolder, 0755)
 		if err != nil {
 			fmt.Printf("error creating output directory: %v", err)
 			os.Exit(1)
@@ -93,7 +94,9 @@ func main() {
 
 // getSafeTitle generates a filesystem-safe title for a document.
 func getSafeTitle(doc Document) (string, error) {
-	safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{})
+	safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{
+		Replacement: "-",
+	})
 	return safeTitle, err
 }
 
