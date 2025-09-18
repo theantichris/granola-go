@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/flytam/filenamify"
-	"github.com/theantichris/granola-to-markdown/internal/granola"
+	"github.com/theantichris/granola-to-markdown/granola"
 )
 
 func main() {
