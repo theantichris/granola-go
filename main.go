@@ -22,7 +22,8 @@ type Cache struct {
 
 // State holds the documents in the cache.
 type State struct {
-	Documents map[string]Document `json:"documents"`
+	Documents   map[string]Document `json:"documents"`
+	Transcripts map[string][]Entry  `json:"transcripts"`
 }
 
 // Document represents a single document in the cache.
@@ -34,6 +35,17 @@ type Document struct {
 	NotesMarkdown string    `json:"notes_markdown"` // Notes in Markdown format
 	NotesPlain    string    `json:"notes_plain"`    // Notes in plain text format
 	Notes         Notes     `json:"notes"`          // Notes in TipTap format
+}
+
+// Entry represents a single transcript entry.
+type Entry struct {
+	ID             string    `json:"id"`              // UUID of the transcript entry
+	DocumentID     string    `json:"document_id"`     // UUID of the associated document
+	Text           string    `json:"text"`            // Text of the transcript entry
+	Source         string    `json:"source"`          // Source of the transcript entry
+	StartTimestamp time.Time `json:"start_timestamp"` // Timestamp of the transcript entry
+	EndTimestamp   time.Time `json:"end_timestamp"`   // End timestamp of the transcript entry
+	IsFinal        bool      `json:"is_final"`        // Whether the transcript entry is final
 }
 
 // Notes represents the notes in TipTap format.
@@ -57,16 +69,17 @@ func main() {
 
 	data, err := os.ReadFile(*cacheFile)
 	if err != nil {
-		fmt.Printf("error reading file: %v", err)
+		fmt.Printf("error reading file: %v\n", err)
 		os.Exit(1)
 	}
 
 	cache, err := createCache(data)
 	if err != nil {
-		fmt.Printf("error creating cache: %v", err)
+		fmt.Printf("error creating cache: %v\n", err)
 		os.Exit(1)
 	}
 
+	// Write to files
 	for _, doc := range cache.State.Documents {
 		contents := doc.Title + "\n" + doc.NotesMarkdown
 
