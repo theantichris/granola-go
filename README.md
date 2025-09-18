@@ -1,41 +1,36 @@
-# granola-to-markdown
+# granola-go
 
-A Go application that exports Granola meeting notes to Markdown files.
+A Go CLI application that exports Granola meeting notes to Markdown files. Reads from Granola's local cache (JSON) and writes one Markdown file per meeting document.
 
 ## Usage
 
 ```sh
 # Build
-$ go build -o granola-to-markdown.exe
+go build -o granola-to-markdown.exe ./cmd
 
 # Run with default cache file and output directory
-$ ./granola-to-markdown.exe
+./granola-to-markdown.exe
 
 # Run with a specific cache file
-$ ./granola-to-markdown.exe --cache=my-cache.json
+./granola-to-markdown.exe --cache=path/to/cache-v3.json
 
 # Run with a specific output directory
-$ ./granola-to-markdown.exe --output=outdir
+./granola-to-markdown.exe --output=outputdir
 
 # Combine flags
-$ ./granola-to-markdown.exe --cache=my-cache.json --output=outdir
+./granola-to-markdown.exe --cache=path/to/cache-v3.json --output=outputdir
 ```
 
 ## Granola Cache
 
-### Cache file
+### Cache file locations
 
-On Windows this is stored at `~\AppData\Roaming\Granola\cache-v3.json`.
+- **Windows:** `~\AppData\Roaming\Granola\cache-v3.json`
+- **macOS:** `~/Library/Application Support/Granola/cache-v3.json`
 
-On MacOS this is stored at `Library/Application Support/Granola/cache-v3.json`.
+### Cache schema
 
-### Granola cache scheme
-
-The cache file is in JSON with a wrapper property `cache` that's value is a JSON string. That contains a `state` object that has all the information.
-
-Documents contain the written notes a user takes but not notes generated from the transcript.
-
-Transcripts is an array of the different parts of the transcript.
+The cache file is JSON with a wrapper property `cache` (a JSON string). The inner JSON contains a `state` object:
 
 ```text
 state
@@ -51,23 +46,29 @@ state
 │   │   │   ├── type: String
 │   │   │   └── content: Array
 ├── transcripts: Map (keyed by document UUID)
-│   ├── [UUID]
-│   │   └── entries: Array
-│   │       ├── id: String
-│   │       ├── document_id: String
-│   │       ├── text: String
-│   │       ├── source: String
-│   │       ├── start_timestamp: String
-│   │       ├── end_timestamp: String
-│   │       ├── is_final: Bool
+│   ├── [UUID]: Array of transcript entries
+│   │   ├── id: String
+│   │   ├── document_id: String
+│   │   ├── text: String
+│   │   ├── source: String
+│   │   ├── start_timestamp: String
+│   │   ├── end_timestamp: String
+│   │   ├── is_final: Bool
 version: float64
 ```
 
-## API
+## Project Structure
 
-There is a "secret" API that can be accessed. The bearer token is stored at `supabase.json` in the same directory as the cache file. The base URL is <https://api.granola.ai/v2/>.
+- `cmd/main.go`: CLI entry point (parses flags, handles I/O)
+- `granola/cache.go`: Core cache parsing and data structures
+- `granola/cache_test.go`: Unit tests for cache logic
+- `.github/workflows/go.yml`: CI workflow (builds and tests on push/PR)
 
-Set these headers.
+## API & Authentication
+
+The Granola API uses a bearer token from `supabase.json` (same directory as the cache file). Base URL: <https://api.granola.ai/v2/>
+
+Set these headers:
 
 ```go
 http.SetHeader("Content-Type", "application/json")
@@ -75,7 +76,3 @@ http.SetHeader("Authorization", "Bearer "+token)
 http.SetHeader("User-Agent", "Granola/5.354.0")
 http.SetHeader("X-Client-Version", "5.354.0")
 ```
-
-### Endpoints
-
-- get-documents
