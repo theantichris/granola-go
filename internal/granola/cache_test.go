@@ -16,38 +16,32 @@ func TestNew(t *testing.T) {
 
 		createdAt, _ := time.Parse(time.RFC3339, "2025-09-12T18:59:15.595Z")
 		updatedAt, _ := time.Parse(time.RFC3339, "2025-09-12T19:15:33.102Z")
-		expected := Cache{
-			State: State{
-				Documents: map[string]Document{
-					"abc123": {
-						ID:            "abc123",
-						Title:         "Test Document",
-						CreatedAt:     createdAt,
-						UpdatedAt:     updatedAt,
-						NotesMarkdown: "# Heading\nSome notes here.",
-						NotesPlain:    "Heading: Some notes here.",
-						Notes: Notes{
-							Type: "doc",
-							Content: []Content{
-								{
-									Type:  "heading",
-									Attrs: map[string]any{"level": float64(1)},
-									Content: []Content{
-										{
-											Type: "text",
-											Text: "Meeting Title",
-										},
-									}},
-								{
-									Type: "paragraph",
-									Content: []Content{
-										{
-											Type: "text",
-											Text: "Some notes here."},
-									}},
+		expected := Document{
+			ID:            "abc123",
+			Title:         "Test Document",
+			CreatedAt:     createdAt,
+			UpdatedAt:     updatedAt,
+			NotesMarkdown: "# Heading\nSome notes here.",
+			NotesPlain:    "Heading: Some notes here.",
+			Notes: Notes{
+				Type: "doc",
+				Content: []Content{
+					{
+						Type:  "heading",
+						Attrs: map[string]any{"level": float64(1)},
+						Content: []Content{
+							{
+								Type: "text",
+								Text: "Meeting Title",
 							},
-						},
-					},
+						}},
+					{
+						Type: "paragraph",
+						Content: []Content{
+							{
+								Type: "text",
+								Text: "Some notes here."},
+						}},
 				},
 			},
 		}
@@ -57,32 +51,34 @@ func TestNew(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		if cache.State.Documents["abc123"].ID != expected.State.Documents["abc123"].ID {
-			t.Errorf("expected document ID %q, got %q", expected.State.Documents["doc1"].ID, cache.State.Documents["doc1"].ID)
+		got := cache.State.Documents["abc123"]
+
+		if got.ID != expected.ID {
+			t.Errorf("expected document ID %q, got %q", expected.ID, got.ID)
 		}
 
-		if cache.State.Documents["doc1"].Title != expected.State.Documents["doc1"].Title {
-			t.Errorf("expected document Title %q, got %q", expected.State.Documents["doc1"].Title, cache.State.Documents["doc1"].Title)
+		if got.Title != expected.Title {
+			t.Errorf("expected document Title %q, got %q", expected.Title, got.Title)
 		}
 
-		if cache.State.Documents["doc1"].CreatedAt != expected.State.Documents["doc1"].CreatedAt {
-			t.Errorf("expected created time %q, got %q", expected.State.Documents["doc1"].CreatedAt, cache.State.Documents["doc1"].CreatedAt)
+		if got.CreatedAt != expected.CreatedAt {
+			t.Errorf("expected created time %q, got %q", expected.CreatedAt, got.CreatedAt)
 		}
 
-		if cache.State.Documents["doc1"].UpdatedAt != expected.State.Documents["doc1"].UpdatedAt {
-			t.Errorf("expected updated time %q, got %q", expected.State.Documents["doc1"].UpdatedAt, cache.State.Documents["doc1"].UpdatedAt)
+		if got.UpdatedAt != expected.UpdatedAt {
+			t.Errorf("expected updated time %q, got %q", expected.UpdatedAt, got.UpdatedAt)
 		}
 
-		if cache.State.Documents["doc1"].NotesMarkdown != expected.State.Documents["doc1"].NotesMarkdown {
-			t.Errorf("expected notes markdown %q, got %q", expected.State.Documents["doc1"].NotesMarkdown, cache.State.Documents["doc1"].NotesMarkdown)
+		if got.NotesMarkdown != expected.NotesMarkdown {
+			t.Errorf("expected notes markdown %q, got %q", expected.NotesMarkdown, got.NotesMarkdown)
 		}
 
-		if cache.State.Documents["doc1"].NotesPlain != expected.State.Documents["doc1"].NotesPlain {
-			t.Errorf("expected notes plain %q, got %q", expected.State.Documents["doc1"].NotesPlain, cache.State.Documents["doc1"].NotesPlain)
+		if got.NotesPlain != expected.NotesPlain {
+			t.Errorf("expected notes plain %q, got %q", expected.NotesPlain, got.NotesPlain)
 		}
 
-		if !cmp.Equal(cache.State.Documents["abc123"].Notes, expected.State.Documents["abc123"].Notes) {
-			t.Errorf("expected notes %+v, got %+v", expected.State.Documents["abc123"].Notes, cache.State.Documents["abc123"].Notes)
+		if !cmp.Equal(got.Notes, expected.Notes) {
+			t.Errorf("expected notes %+v, got %+v", expected.Notes, got.Notes)
 		}
 	})
 
