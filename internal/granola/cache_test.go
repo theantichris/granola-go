@@ -1,7 +1,6 @@
-package main
+package granola
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -9,18 +8,18 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestCreateCache(t *testing.T) {
-	t.Run("creates the cache from valid JSON", func(t *testing.T) {
+func TestNew(t *testing.T) {
+	t.Run("creates the cache with document", func(t *testing.T) {
 		t.Parallel()
 
-		testJSON := `{"cache": "{\"state\":{\"documents\":{\"doc1\":{\"id\":\"abc123\",\"title\":\"Test Document\",\"created_at\":\"2025-09-12T18:59:15.595Z\",\"updated_at\":\"2025-09-12T19:15:33.102Z\",\"notes_markdown\":\"# Heading\\nSome notes here.\",\"notes_plain\":\"Heading: Some notes here.\",\"notes\":{\"type\":\"doc\",\"content\":[{\"type\":\"heading\",\"attrs\":{\"level\":1},\"content\":[{\"type\":\"text\",\"text\":\"Meeting Title\"}]},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Some notes here.\"}]}]}}}}}"}`
+		testJSON := `{"cache": "{\"state\":{\"documents\":{\"abc123\":{\"id\":\"abc123\",\"title\":\"Test Document\",\"created_at\":\"2025-09-12T18:59:15.595Z\",\"updated_at\":\"2025-09-12T19:15:33.102Z\",\"notes_markdown\":\"# Heading\\nSome notes here.\",\"notes_plain\":\"Heading: Some notes here.\",\"notes\":{\"type\":\"doc\",\"content\":[{\"type\":\"heading\",\"attrs\":{\"level\":1},\"content\":[{\"type\":\"text\",\"text\":\"Meeting Title\"}]},{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Some notes here.\"}]}]}}}}}"}`
 
 		createdAt, _ := time.Parse(time.RFC3339, "2025-09-12T18:59:15.595Z")
 		updatedAt, _ := time.Parse(time.RFC3339, "2025-09-12T19:15:33.102Z")
 		expected := Cache{
 			State: State{
 				Documents: map[string]Document{
-					"doc1": {
+					"abc123": {
 						ID:            "abc123",
 						Title:         "Test Document",
 						CreatedAt:     createdAt,
@@ -53,12 +52,12 @@ func TestCreateCache(t *testing.T) {
 			},
 		}
 
-		cache, err := createCache([]byte(testJSON))
+		cache, err := New([]byte(testJSON))
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		if cache.State.Documents["doc1"].ID != expected.State.Documents["doc1"].ID {
+		if cache.State.Documents["abc123"].ID != expected.State.Documents["abc123"].ID {
 			t.Errorf("expected document ID %q, got %q", expected.State.Documents["doc1"].ID, cache.State.Documents["doc1"].ID)
 		}
 
@@ -82,19 +81,17 @@ func TestCreateCache(t *testing.T) {
 			t.Errorf("expected notes plain %q, got %q", expected.State.Documents["doc1"].NotesPlain, cache.State.Documents["doc1"].NotesPlain)
 		}
 
-		fmt.Print(cmp.Diff(expected.State.Documents["doc1"].Notes, cache.State.Documents["doc1"].Notes))
-
-		if !cmp.Equal(cache.State.Documents["doc1"].Notes, expected.State.Documents["doc1"].Notes) {
-			t.Errorf("expected notes %+v, got %+v", expected.State.Documents["doc1"].Notes, cache.State.Documents["doc1"].Notes)
+		if !cmp.Equal(cache.State.Documents["abc123"].Notes, expected.State.Documents["abc123"].Notes) {
+			t.Errorf("expected notes %+v, got %+v", expected.State.Documents["abc123"].Notes, cache.State.Documents["abc123"].Notes)
 		}
 	})
 
-	t.Run("returns error for invalid outer JSON", func(t *testing.T) {
+	t.Run("returns error for invalid wrapper JSON", func(t *testing.T) {
 		t.Parallel()
 
-		testJSON := `{"cache": {\"state\":{\"documents\":{\"doc1\":{\"id\":\"abc123\"}}}}"}`
+		invalidWrapperJSON := `{"cache": {\"state\":{\"documents\":{\"doc1\":{\"id\":\"abc123\"}}}}"}`
 
-		_, err := createCache([]byte(testJSON))
+		_, err := New([]byte(invalidWrapperJSON))
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
@@ -107,35 +104,15 @@ func TestCreateCache(t *testing.T) {
 	t.Run("returns error for invalid cache JSON", func(t *testing.T) {
 		t.Parallel()
 
-		testJSON := `{"cache": "{\"state\":{documents\":{\"doc1\":{\"id\":\"abc123\"}}}}"}`
+		invalidCacheJSON := `{"cache": "{\"state\":{documents\":{\"doc1\":{\"id\":\"abc123\"}}}}"}`
 
-		_, err := createCache([]byte(testJSON))
+		_, err := New([]byte(invalidCacheJSON))
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
 
 		if !strings.Contains(err.Error(), "error unmarshalling cache") {
 			t.Errorf("expected 'error unmarshalling cache', got %q", err.Error())
-		}
-	})
-}
-
-func TestGetSafeTitle(t *testing.T) {
-	t.Run("returns a safe filename", func(t *testing.T) {
-		t.Parallel()
-
-		doc := Document{
-			Title: "Test/Document: A Sample?",
-		}
-
-		safeTitle, err := getSafeTitle(doc)
-		if err != nil {
-			t.Fatalf("expected no error, got %v", err)
-		}
-
-		expected := "Test-Document- A Sample"
-		if safeTitle != expected {
-			t.Errorf("expected safe title %q, got %q", expected, safeTitle)
 		}
 	})
 }
