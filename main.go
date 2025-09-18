@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/flytam/filenamify"
 )
 
@@ -65,7 +64,7 @@ type Content struct {
 
 func main() {
 	cacheFile := flag.String("cache", "granola-cache.json", "Path to the Granola cache JSON file")
-	// outputFolder := flag.String("output", "output", "Directory to save the output markdown files")
+	outputFolder := flag.String("output", "output", "Directory to save the output markdown files")
 	flag.Parse()
 
 	data, err := os.ReadFile(*cacheFile)
@@ -80,36 +79,28 @@ func main() {
 		os.Exit(1)
 	}
 
-	for _, transcript := range cache.State.Transcripts {
-		spew.Dump(transcript)
-
-		break
-	}
-
-	// spew.Dump(cache.State.Transcripts)
-
 	// Write to files
-	// for _, doc := range cache.State.Documents {
-	// 	contents := doc.Title + "\n" + doc.NotesMarkdown
+	for _, doc := range cache.State.Documents {
+		contents := doc.Title + "\n" + doc.NotesMarkdown
 
-	// 	safeTitle, err := getSafeTitle(doc)
-	// 	if err != nil {
-	// 		fmt.Printf("error creating safe filename: %v", err)
-	// 		os.Exit(1)
-	// 	}
+		safeTitle, err := getSafeTitle(doc)
+		if err != nil {
+			fmt.Printf("error creating safe filename: %v", err)
+			os.Exit(1)
+		}
 
-	// 	err = os.MkdirAll(*outputFolder, 0755)
-	// 	if err != nil {
-	// 		fmt.Printf("error creating output directory: %v", err)
-	// 		os.Exit(1)
-	// 	}
+		err = os.MkdirAll(*outputFolder, 0755)
+		if err != nil {
+			fmt.Printf("error creating output directory: %v", err)
+			os.Exit(1)
+		}
 
-	// 	filename := fmt.Sprintf("%s-%s.md", safeTitle, doc.ID)
-	// 	if err := os.WriteFile("output/"+filename, []byte(contents), 0644); err != nil {
-	// 		fmt.Printf("error writing file %s: %v", filename, err)
-	// 		os.Exit(1)
-	// 	}
-	// }
+		filename := fmt.Sprintf("%s-%s.md", safeTitle, doc.ID)
+		if err := os.WriteFile("output/"+filename, []byte(contents), 0644); err != nil {
+			fmt.Printf("error writing file %s: %v", filename, err)
+			os.Exit(1)
+		}
+	}
 
 	os.Exit(0)
 }
