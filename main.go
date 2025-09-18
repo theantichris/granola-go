@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/flytam/filenamify"
 )
 
@@ -22,7 +23,8 @@ type Cache struct {
 
 // State holds the documents in the cache.
 type State struct {
-	Documents map[string]Document `json:"documents"`
+	Documents   map[string]Document `json:"documents"`
+	Transcripts map[string]any      `json:"transcripts"`
 }
 
 // Document represents a single document in the cache.
@@ -34,6 +36,14 @@ type Document struct {
 	NotesMarkdown string    `json:"notes_markdown"` // Notes in Markdown format
 	NotesPlain    string    `json:"notes_plain"`    // Notes in plain text format
 	Notes         Notes     `json:"notes"`          // Notes in TipTap format
+}
+
+type Transcript struct {
+	Entries []Entry `json:"entries"` // List of transcript entries
+}
+
+type Entry struct {
+	Text string `json:"text"` // Text of the transcript entry
 }
 
 // Notes represents the notes in TipTap format.
@@ -52,7 +62,7 @@ type Content struct {
 
 func main() {
 	cacheFile := flag.String("cache", "granola-cache.json", "Path to the Granola cache JSON file")
-	outputFolder := flag.String("output", "output", "Directory to save the output markdown files")
+	// outputFolder := flag.String("output", "output", "Directory to save the output markdown files")
 	flag.Parse()
 
 	data, err := os.ReadFile(*cacheFile)
@@ -67,27 +77,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	for _, doc := range cache.State.Documents {
-		contents := doc.Title + "\n" + doc.NotesMarkdown
+	spew.Dump(cache.State.Transcripts)
 
-		safeTitle, err := getSafeTitle(doc)
-		if err != nil {
-			fmt.Printf("error creating safe filename: %v", err)
-			os.Exit(1)
-		}
+	// Write to files
+	// for _, doc := range cache.State.Documents {
+	// 	contents := doc.Title + "\n" + doc.NotesMarkdown
 
-		err = os.MkdirAll(*outputFolder, 0755)
-		if err != nil {
-			fmt.Printf("error creating output directory: %v", err)
-			os.Exit(1)
-		}
+	// 	safeTitle, err := getSafeTitle(doc)
+	// 	if err != nil {
+	// 		fmt.Printf("error creating safe filename: %v", err)
+	// 		os.Exit(1)
+	// 	}
 
-		filename := fmt.Sprintf("%s-%s.md", safeTitle, doc.ID)
-		if err := os.WriteFile("output/"+filename, []byte(contents), 0644); err != nil {
-			fmt.Printf("error writing file %s: %v", filename, err)
-			os.Exit(1)
-		}
-	}
+	// 	err = os.MkdirAll(*outputFolder, 0755)
+	// 	if err != nil {
+	// 		fmt.Printf("error creating output directory: %v", err)
+	// 		os.Exit(1)
+	// 	}
+
+	// 	filename := fmt.Sprintf("%s-%s.md", safeTitle, doc.ID)
+	// 	if err := os.WriteFile("output/"+filename, []byte(contents), 0644); err != nil {
+	// 		fmt.Printf("error writing file %s: %v", filename, err)
+	// 		os.Exit(1)
+	// 	}
+	// }
 
 	os.Exit(0)
 }

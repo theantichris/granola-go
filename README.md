@@ -21,6 +21,10 @@ $ ./granola-to-markdown.exe --output=outdir
 $ ./granola-to-markdown.exe --cache=my-cache.json --output=outdir
 ```
 
+## Cache file
+
+On Windows this is stored at `~\AppData\Roaming\Granola\cache-v3.json`.
+
 ## Granola cache scheme
 
 The cache file is in JSON with a wrapper property `cache` that's value is a JSON string. That contains a `state` object that has all the information including Google calendar events and people information.
