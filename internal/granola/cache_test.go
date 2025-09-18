@@ -86,6 +86,59 @@ func TestNew(t *testing.T) {
 		}
 	})
 
+	t.Run("creates the cache with transcript", func(t *testing.T) {
+		t.Parallel()
+
+		testJSON := `{"cache": "{\"state\":{\"transcripts\":{\"abc123\":[{\"id\":\"abc123\",\"document_id\":\"doc1\",\"text\":\"This is a test transcript.\",\"source\":\"system\",\"start_timestamp\":\"2025-09-12T18:59:15.595Z\",\"end_timestamp\":\"2025-09-12T19:15:33.102Z\",\"is_final\":true}]}}}"}`
+
+		startTimestamp, _ := time.Parse(time.RFC3339, "2025-09-12T18:59:15.595Z")
+		endTimestamp, _ := time.Parse(time.RFC3339, "2025-09-12T19:15:33.102Z")
+		expected := Transcript{
+			ID:             "abc123",
+			DocumentID:     "doc1",
+			Text:           "This is a test transcript.",
+			Source:         "system",
+			StartTimestamp: startTimestamp,
+			EndTimestamp:   endTimestamp,
+			IsFinal:        true,
+		}
+
+		cache, err := New([]byte(testJSON))
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+
+		got := cache.State.Transcripts["abc123"][0]
+
+		if got.ID != expected.ID {
+			t.Errorf("expected transcript ID %q, got %q", expected.ID, got.ID)
+		}
+
+		if got.DocumentID != expected.DocumentID {
+			t.Errorf("expected document ID %q, got %q", expected.DocumentID, got.DocumentID)
+		}
+
+		if got.Text != expected.Text {
+			t.Errorf("expected text %q, got %q", expected.Text, got.Text)
+		}
+
+		if got.Source != expected.Source {
+			t.Errorf("expected source %q, got %q", expected.Source, got.Source)
+		}
+
+		if !got.StartTimestamp.Equal(expected.StartTimestamp) {
+			t.Errorf("expected start timestamp %q, got %q", expected.StartTimestamp, got.StartTimestamp)
+		}
+
+		if !got.EndTimestamp.Equal(expected.EndTimestamp) {
+			t.Errorf("expected end timestamp %q, got %q", expected.EndTimestamp, got.EndTimestamp)
+		}
+
+		if got.IsFinal != expected.IsFinal {
+			t.Errorf("expected is_final %v, got %v", expected.IsFinal, got.IsFinal)
+		}
+	})
+
 	t.Run("returns error for invalid wrapper JSON", func(t *testing.T) {
 		t.Parallel()
 

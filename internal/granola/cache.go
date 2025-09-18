@@ -18,8 +18,8 @@ type Cache struct {
 
 // State holds the documents in the cache.
 type State struct {
-	Documents   map[string]Document `json:"documents"`
-	Transcripts map[string][]Entry  `json:"transcripts"`
+	Documents   map[string]Document     `json:"documents"`
+	Transcripts map[string][]Transcript `json:"transcripts"`
 }
 
 // Document represents a single document in the cache.
@@ -33,8 +33,8 @@ type Document struct {
 	Notes         Notes     `json:"notes"`          // Notes in TipTap format
 }
 
-// Entry represents a single transcript entry.
-type Entry struct {
+// Transcript represents a single transcript entry.
+type Transcript struct {
 	ID             string    `json:"id"`              // UUID of the transcript entry
 	DocumentID     string    `json:"document_id"`     // UUID of the associated document
 	Text           string    `json:"text"`            // Text of the transcript entry
