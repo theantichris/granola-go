@@ -1,7 +1,7 @@
 package granola
 
 import (
-	"strings"
+	"errors"
 	"testing"
 	"time"
 
@@ -145,7 +145,7 @@ func TestNewCache(t *testing.T) {
 			t.Fatal("expected error, got nil")
 		}
 
-		if !strings.Contains(err.Error(), ErrOuterJSON.Error()) {
+		if !errors.Is(err, ErrOuterJSON) {
 			t.Errorf("expected 'error unmarshalling outer JSON', got %q", err.Error())
 		}
 	})
@@ -160,7 +160,7 @@ func TestNewCache(t *testing.T) {
 			t.Fatal("expected error, got nil")
 		}
 
-		if !strings.Contains(err.Error(), ErrCacheJSON.Error()) {
+		if !errors.Is(err, ErrCacheJSON) {
 			t.Errorf("expected 'error unmarshalling cache', got %q", err.Error())
 		}
 	})
