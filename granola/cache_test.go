@@ -8,7 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestNew(t *testing.T) {
+func TestNewCache(t *testing.T) {
 	t.Run("creates the cache with document", func(t *testing.T) {
 		t.Parallel()
 
@@ -46,7 +46,7 @@ func TestNew(t *testing.T) {
 			},
 		}
 
-		cache, err := New([]byte(testJSON))
+		cache, err := NewCache([]byte(testJSON))
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -99,7 +99,7 @@ func TestNew(t *testing.T) {
 			IsFinal:        true,
 		}
 
-		cache, err := New([]byte(testJSON))
+		cache, err := NewCache([]byte(testJSON))
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -140,7 +140,7 @@ func TestNew(t *testing.T) {
 
 		invalidWrapperJSON := `{"cache": {\"state\":{\"documents\":{\"doc1\":{\"id\":\"abc123\"}}}}"}`
 
-		_, err := New([]byte(invalidWrapperJSON))
+		_, err := NewCache([]byte(invalidWrapperJSON))
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
@@ -155,7 +155,7 @@ func TestNew(t *testing.T) {
 
 		invalidCacheJSON := `{"cache": "{\"state\":{documents\":{\"doc1\":{\"id\":\"abc123\"}}}}"}`
 
-		_, err := New([]byte(invalidCacheJSON))
+		_, err := NewCache([]byte(invalidCacheJSON))
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}

@@ -2,13 +2,14 @@ package granola
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 )
 
 var (
-	ErrOuterJSON = fmt.Errorf("error unmarshalling outer JSON")
-	ErrCacheJSON = fmt.Errorf("error unmarshalling cache")
+	ErrOuterJSON = errors.New("error unmarshalling outer JSON")
+	ErrCacheJSON = errors.New("error unmarshalling cache")
 )
 
 // Wrapper is the outer structure that contains the cache as a JSON string.
@@ -63,16 +64,16 @@ type Content struct {
 	Text    string         `json:"text,omitempty"`    // Text content for text nodes
 }
 
-// New takes a byte slice of JSON data and unmarshals it into a Cache struct.
-func New(data []byte) (Cache, error) {
+// NewCache takes a byte slice of JSON data and unmarshals it into a Cache struct.
+func NewCache(data []byte) (Cache, error) {
 	var wrapper Wrapper
 	if err := json.Unmarshal(data, &wrapper); err != nil {
-		return Cache{}, fmt.Errorf("error creating cache: %w", ErrOuterJSON)
+		return Cache{}, fmt.Errorf("%w: %v", ErrOuterJSON, err)
 	}
 
 	var cache Cache
 	if err := json.Unmarshal([]byte(wrapper.Cache), &cache); err != nil {
-		return Cache{}, fmt.Errorf("error creating: %w", ErrCacheJSON)
+		return Cache{}, fmt.Errorf("%w: %v", ErrCacheJSON, err)
 	}
 
 	return cache, nil

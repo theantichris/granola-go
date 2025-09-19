@@ -20,14 +20,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	granola, err := granola.New(data)
+	cache, err := granola.NewCache(data)
 	if err != nil {
 		fmt.Print(err)
 		os.Exit(1)
 	}
 
 	// Write to files
-	for _, doc := range granola.State.Documents {
+	for _, doc := range cache.State.Documents {
 		contents := doc.Title + "\n" + doc.NotesMarkdown
 
 		safeTitle, err := getSafeTitle(doc)
