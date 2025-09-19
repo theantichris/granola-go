@@ -21,8 +21,22 @@ jobs:
       with:
         go-version: '1.25'
 
+    - name: Check formatting (gofmt)
+      shell: bash
+      run: |
+        fmt_out=$(gofmt -s -l .)
+        if [[ -n "$fmt_out" ]]; then
+          echo "Unformatted files:" >&2
+          echo "$fmt_out" >&2
+          echo "Run: gofmt -s -w ." >&2
+          exit 1
+        fi
+
+    - name: Vet
+      run: go vet ./...
+
     - name: Build
       run: go build -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: go test -race -v ./...

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-push] running fmt, vet, and tests..."
+
+# Formatting check
+fmt_out=$(gofmt -s -l .)
+if [[ -n "${fmt_out}" ]]; then
+  echo "[pre-push] gofmt found unformatted files:" >&2
+  echo "${fmt_out}" >&2
+  echo "[pre-push] fix with: gofmt -s -w ." >&2
+  exit 1
+fi
+
+# Static analysis
+go vet ./...
+
+# Unit tests
+go test -v ./...
+
+echo "[pre-push] all checks passed."
