@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log/slog"
 	"os"
+	"path/filepath"
 
 	"github.com/flytam/filenamify"
 	"github.com/theantichris/granola-to-markdown/granola"
@@ -43,7 +44,7 @@ func main() {
 		}
 
 		filename := safeTitle + "-" + doc.ID + ".md"
-		outPath := *outputFolder + string(os.PathSeparator) + filename
+		outPath := filepath.Join(*outputFolder, filename)
 		if err := os.WriteFile(outPath, []byte(contents), 0644); err != nil {
 			slog.Error("error writing file", "err", err, "file", outPath)
 			os.Exit(1)

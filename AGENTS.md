@@ -66,7 +66,7 @@ Authentication for the Granola API uses a bearer token from `supabase.json` in t
 
 | Command                                               | Purpose                 |
 | ----------------------------------------------------- | ----------------------- |
-| `go build -o granola-to-markdown.exe ./cmd/granola`   | Build the binary        |
+| `go build -o granola-to-markdown.exe ./cmd`           | Build the binary        |
 | `go test ./...`                                       | Run all tests           |
 | `go test -cover ./...`                                | Run tests with coverage |
 | `./granola-to-markdown.exe --cache=path --output=dir` | Run with custom options |
