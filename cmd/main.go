@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/flytam/filenamify"
@@ -16,13 +16,13 @@ func main() {
 
 	data, err := os.ReadFile(*cacheFile)
 	if err != nil {
-		fmt.Printf("error reading file: %v\n", err)
+		slog.Error("error reading file", "err", err, "file", *cacheFile)
 		os.Exit(1)
 	}
 
 	cache, err := granola.NewCache(data)
 	if err != nil {
-		fmt.Print(err)
+		slog.Error("error creating cache", "err", err)
 		os.Exit(1)
 	}
 
@@ -32,19 +32,20 @@ func main() {
 
 		safeTitle, err := getSafeTitle(doc)
 		if err != nil {
-			fmt.Printf("error creating safe filename: %v", err)
+			slog.Error("error creating safe filename", "err", err, "title", doc.Title)
 			os.Exit(1)
 		}
 
 		err = os.MkdirAll(*outputFolder, 0755)
 		if err != nil {
-			fmt.Printf("error creating output directory: %v", err)
+			slog.Error("error creating output directory", "err", err, "dir", *outputFolder)
 			os.Exit(1)
 		}
 
-		filename := fmt.Sprintf("%s-%s.md", safeTitle, doc.ID)
-		if err := os.WriteFile("output/"+filename, []byte(contents), 0644); err != nil {
-			fmt.Printf("error writing file %s: %v", filename, err)
+		filename := safeTitle + "-" + doc.ID + ".md"
+		outPath := *outputFolder + string(os.PathSeparator) + filename
+		if err := os.WriteFile(outPath, []byte(contents), 0644); err != nil {
+			slog.Error("error writing file", "err", err, "file", outPath)
 			os.Exit(1)
 		}
 	}
@@ -57,5 +58,6 @@ func getSafeTitle(doc granola.Document) (string, error) {
 	safeTitle, err := filenamify.Filenamify(doc.Title, filenamify.Options{
 		Replacement: "-",
 	})
+
 	return safeTitle, err
 }
