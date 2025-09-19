@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -21,14 +20,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	cache, err := createCache(data)
+	granola, err := granola.New(data)
 	if err != nil {
-		fmt.Printf("error creating cache: %v\n", err)
+		fmt.Print(err)
 		os.Exit(1)
 	}
 
 	// Write to files
-	for _, doc := range cache.State.Documents {
+	for _, doc := range granola.State.Documents {
 		contents := doc.Title + "\n" + doc.NotesMarkdown
 
 		safeTitle, err := getSafeTitle(doc)
@@ -59,19 +58,4 @@ func getSafeTitle(doc granola.Document) (string, error) {
 		Replacement: "-",
 	})
 	return safeTitle, err
-}
-
-// createCache takes a byte slice of JSON data and unmarshals it into a Cache struct.
-func createCache(data []byte) (granola.Cache, error) {
-	var wrapper granola.Wrapper
-	if err := json.Unmarshal(data, &wrapper); err != nil {
-		return granola.Cache{}, fmt.Errorf("error unmarshalling outer JSON: %v", err)
-	}
-
-	var cache granola.Cache
-	if err := json.Unmarshal([]byte(wrapper.Cache), &cache); err != nil {
-		return granola.Cache{}, fmt.Errorf("error unmarshalling cache: %v", err)
-	}
-
-	return cache, nil
 }

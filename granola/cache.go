@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+var (
+	ErrOuterJSON = fmt.Errorf("error unmarshalling outer JSON")
+	ErrCacheJSON = fmt.Errorf("error unmarshalling cache")
+)
+
 // Wrapper is the outer structure that contains the cache as a JSON string.
 type Wrapper struct {
 	Cache string `json:"cache"`
@@ -62,12 +67,12 @@ type Content struct {
 func New(data []byte) (Cache, error) {
 	var wrapper Wrapper
 	if err := json.Unmarshal(data, &wrapper); err != nil {
-		return Cache{}, fmt.Errorf("error unmarshalling outer JSON: %v", err)
+		return Cache{}, fmt.Errorf("error creating cache: %w", ErrOuterJSON)
 	}
 
 	var cache Cache
 	if err := json.Unmarshal([]byte(wrapper.Cache), &cache); err != nil {
-		return Cache{}, fmt.Errorf("error unmarshalling cache: %v", err)
+		return Cache{}, fmt.Errorf("error creating: %w", ErrCacheJSON)
 	}
 
 	return cache, nil

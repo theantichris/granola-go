@@ -145,7 +145,7 @@ func TestNew(t *testing.T) {
 			t.Fatal("expected error, got nil")
 		}
 
-		if !strings.Contains(err.Error(), "error unmarshalling outer JSON") {
+		if !strings.Contains(err.Error(), ErrOuterJSON.Error()) {
 			t.Errorf("expected 'error unmarshalling outer JSON', got %q", err.Error())
 		}
 	})
@@ -160,7 +160,7 @@ func TestNew(t *testing.T) {
 			t.Fatal("expected error, got nil")
 		}
 
-		if !strings.Contains(err.Error(), "error unmarshalling cache") {
+		if !strings.Contains(err.Error(), ErrCacheJSON.Error()) {
 			t.Errorf("expected 'error unmarshalling cache', got %q", err.Error())
 		}
 	})
