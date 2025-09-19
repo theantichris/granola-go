@@ -1,76 +1,79 @@
-# AGENTS Guidelines for This Repository
+# Repository Guidelines
 
-This repository contains a Go CLI application that exports Granola meeting notes to Markdown files. The application reads from Granola's local cache files (JSON format) and converts meeting documents to individual Markdown files. When working on this project, please follow the guidelines below to maintain code quality and consistency.
+## Project Structure & Modules
 
-## 1. Follow TDD and Go Best Practices
+- `cmd/main.go` – CLI entry (flag parsing, I/O).
+- `granola/` – core logic (cache parsing, transforms).
+- `granola/*_test.go` – unit tests colocated with code.
+- Outputs are written to the directory provided by `--output`.
 
-- **Always write tests first** using the Test-Driven Development approach. Write unit tests for all new functionality before implementing features.
-- **Use descriptive variable and function names** - prefer `cache` over `c`, `transcriptData` over `td`, etc. Code should be self-documenting.
-- **Prefer standard Go packages** unless there's a clear advantage to using external dependencies.
-- Run `gofmt` to ensure consistent formatting across the codebase.
+## Build, Test, and Development
 
-## 2. Error Handling Standards
+- Build: `go build -o granola-go.exe ./cmd` (use a POSIX binary name on macOS/Linux).
+- Run: `go run ./cmd --cache path/to/cache-v3.json --output outdir`.
+- Test (verbose): `go test -v ./...`.
+- Coverage: `go test -cover ./...`.
+- Static checks: `go vet ./...` (run before PRs).
 
-- **Use sentinel errors** for expected error conditions that callers need to handle.
-- **Wrap errors with `%w`** to maintain error chains and provide context.
-- **Use `errors.Is()`** for error assertions and comparisons, not string matching.
+## Coding Style & Naming
 
-Example:
+- Format with `go fmt ./...` (or `gofmt -s -w .`) and keep diffs clean.
+- Use idiomatic Go: packages lowercase (`granola`), exported identifiers `CamelCase` with doc comments starting with the name, unexported `camelCase`.
+- Prefer early returns; handle errors explicitly and wrap with context.
+- File names lowercase with underscores as needed; test files end with `_test.go`.
 
-```go
-var ErrCacheNotFound = errors.New("cache file not found")
+## Testing Guidelines
 
-if err := readCache(); err != nil {
-    return fmt.Errorf("failed to process cache: %w", err)
-}
+- Use the standard `testing` package; prefer subtests with `t.Run(...)` for readability.
+- When a subtest is independent, call `t.Parallel()` inside that subtest to run them concurrently.
+- Name tests `TestXxx` matching the exported behavior (e.g., `TestParseCache`).
+- Keep unit tests fast and deterministic; avoid touching the real cache file — use fixtures/strings.
+- Example:
 
-if errors.Is(err, ErrCacheNotFound) {
-    // handle missing cache
-}
-```
+  ```go
+  func TestParseCache(t *testing.T) {
+    t.Run("empty cache", func(t *testing.T) {
+      t.Parallel()
+      // ... assertions
+    })
+    t.Run("valid doc", func(t *testing.T) {
+      t.Parallel()
+      // ... assertions
+    })
+  }
+  ```
 
-## 3. Logging Requirements
+- Run `go test -v ./...` locally before pushing; include coverage when changing parsing logic.
 
-- **Use `log/slog` exclusively** for all logging needs.
-- **Never use `fmt` for logging in library code** - this includes `fmt.Printf`, `fmt.Println`, etc.
-- **Output separation is critical**:
-  - All logs must go to `stderr`
-  - Normal output goes to `stdout`
+## Commit & Pull Request Guidelines
 
-## 4. Project Structure Notes
+- Commits: short, imperative subject (≤72 chars), optional scope. Examples:
+  - `cmd: add --output flag`
+  - `granola: extract title creation`
+- Reference issues/PRs using `#123` when applicable.
+- PRs: include a clear description, motivation, before/after behavior, and test coverage notes; add screenshots only if user-facing output changes.
 
-The current structure has core functionality in `granola`. Keep the CLI entry point in `cmd`.
+## Security & Configuration Tips
 
-## 5. Testing and CI
+- Do not commit `cache-v3.json` or any `supabase.json`/tokens. Keep secrets out of code and logs.
+- Default cache paths (reference only):
+  - Windows: `~\AppData\Roaming\Granola\cache-v3.json`
+  - macOS: `~/Library/Application Support/Granola/cache-v3.json`
 
-- Run `go test ./...` before every commit to ensure all tests pass.
-- The project uses GitHub Actions (`.github/workflows/go.yml`) for automated building and testing.
-- All CI checks must pass before merging any PR.
+## Agent Notes
 
-## 6. Branching and Commits
+- Keep changes minimal and focused; do not break existing flags or output structure.
+- Touch only relevant files; mirror existing patterns in `granola/` and update tests when behavior changes.
 
-- **Branch naming**: Use descriptive prefixes like `feature/transcripts` or `bug/fix-bad-code`.
-- **Commit messages**: Use imperative tense - "add transcript ID", "fix unmarshalling error", not "dded" or "fixed".
-- **PR titles**: Follow the same imperative style as commit messages.
+## CI Checklist
 
-## 7. Application Context
+- `gofmt -s -l .` reports no files.
+- `go vet ./...` passes.
+- `go test -v ./...` passes (consider `-race` locally).
+- Add/adjust tests for behavior changes; note coverage in PR description.
 
-The application works with Granola cache files located at:
+## Pre-push Hook (Optional but Recommended)
 
-- **Windows**: `~\AppData\Roaming\Granola\cache-v3.json`
-- **macOS**: `~/Library/Application Support/Granola/cache-v3.json`
-
-Authentication for the Granola API uses a bearer token from `supabase.json` in the same directory as the cache file.
-
-## 8. Useful Commands
-
-| Command                                               | Purpose                 |
-| ----------------------------------------------------- | ----------------------- |
-| `go build -o granola-to-markdown.exe ./cmd`           | Build the binary        |
-| `go test ./...`                                       | Run all tests           |
-| `go test -cover ./...`                                | Run tests with coverage |
-| `./granola-to-markdown.exe --cache=path --output=dir` | Run with custom options |
-
----
-
-Following these guidelines ensures consistent, maintainable code that integrates well with the existing codebase and CI pipeline. When in doubt, prioritize descriptive naming and comprehensive testing over brevity.
+- Enable repo hooks: `git config core.hooksPath .githooks`.
+- The hook blocks pushes if formatting, vet, or tests fail.
+- Run manually if needed: `.githooks/pre-push`.
